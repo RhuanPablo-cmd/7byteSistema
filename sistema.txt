@@ -5,4 +5,4 @@ Construção do Sistema 7Byte, Gestão de estoque.
 1 - Iniciar a criação das telas no QT designer, verificar qual banco de dados vamos
 utilizar pra conseguir validar automaticamente em ambas maquinas.
 
-2 -
+2 - Teste 
