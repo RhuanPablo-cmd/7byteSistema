@@ -8,4 +8,11 @@ utilizar pra conseguir validar automaticamente em ambas maquinas.
 2 - Teste 
 \\ teste \\
 
+<<<<<<< Updated upstream
 3 - TESTE 
+=======
+
+\\ comentario\\
+
+const=1
+>>>>>>> Stashed changes
