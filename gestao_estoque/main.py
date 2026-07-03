@@ -1,7 +1,13 @@
+# Pessoal baixa o  pip install PyQt5  
+
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QLineEdit
 from PyQt5 import uic
 
+# class MainWindow(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
+#         uic.loadUi("Telas.ui/menu_principal.ui", self)
 
 class LoginWindow(QWidget):
     def __init__(self):
