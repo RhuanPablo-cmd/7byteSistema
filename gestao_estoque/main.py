@@ -1,15 +1,16 @@
 # Pessoal baixa o  pip install PyQt5  
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QMessageBox, QLineEdit
 from PyQt5 import uic
 
-# class MainWindow(QMainWindow):
-#     def __init__(self):
-#         super().__init__()
-#         uic.loadUi("Telas.ui/menu_principal.ui", self)
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("Telas.ui/menu_principal.ui", self)
 
 class LoginWindow(QWidget):
+    
     def __init__(self):
         super().__init__()
 
@@ -26,7 +27,9 @@ class LoginWindow(QWidget):
         print(f"Usuário: {usuario} | Senha: {senha}")
 
         if usuario == "Admin" and senha == "1234":
-            print("Login OK!")
+            self.main_window = MainWindow()
+            self.main_window.show()
+            self.close()
         else:
             QMessageBox.warning(
                 self,
@@ -34,13 +37,11 @@ class LoginWindow(QWidget):
                 "Usuário ou senha inválidos."
             )
 
-    def alternar_senha(self):
-        if self.senhaLineEdit.echoMode() == QLineEdit.Password:
-            self.senhaLineEdit.setEchoMode(QLineEdit.Normal)
-        else:
-            self.senhaLineEdit.setEchoMode(QLineEdit.Password)
-
-    
+    # def alternar_senha(self):
+    #     if self.senhaLineEdit.echoMode() == QLineEdit.Password:
+    #         self.senhaLineEdit.setEchoMode(QLineEdit.Normal)
+    #     else:
+    #         self.senhaLineEdit.setEchoMode(QLineEdit.Password)
 
 app = QApplication(sys.argv)
 
