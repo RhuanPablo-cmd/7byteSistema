@@ -104,10 +104,3 @@ janela = LoginWindow()
 janela.show()
 
 sys.exit(app.exec_())
-def main():
-    app = QApplication(sys.argv)
-    janela = LoginWindow()
-    janela.show()
-    sys.exit(app.exec_())   
-
-    def
