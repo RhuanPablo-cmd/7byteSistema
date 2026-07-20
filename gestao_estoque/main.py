@@ -105,4 +105,4 @@ janela.show()
 
 sys.exit(app.exec_())
 
-
+# aaaaaaaaaaaaaaaaaaaa
