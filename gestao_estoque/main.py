@@ -104,4 +104,3 @@ janela = LoginWindow()
 janela.show()
 
 sys.exit(app.exec_())
-#vamo trabaia ze
