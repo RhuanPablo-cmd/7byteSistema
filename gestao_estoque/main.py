@@ -4,7 +4,7 @@ import os
 import sqlite3
 import sys
 
-from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -12,6 +12,9 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QTableWidgetItem,
     QLineEdit,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
     QWidget,
 )
 from PyQt5 import uic
@@ -40,6 +43,14 @@ class Database:
             "SELECT id, username FROM users WHERE username = ? AND password_hash = ? AND active = 1",
             (username, self.hash_password(password)),
         ).fetchone()
+
+    def reset_password(self, username, new_password):
+        cursor = self.connection.execute(
+            "UPDATE users SET password_hash = ? WHERE username = ? AND active = 1",
+            (self.hash_password(new_password), username),
+        )
+        self.connection.commit()
+        return cursor.rowcount > 0
 
     def list_products(self, search=""):
         return self.connection.execute(
@@ -292,6 +303,9 @@ class LoginWindow(QWidget):
         # Conecta os botões da tela de login
         self.entrarButton.clicked.connect(self.fazer_login)
         self.toggleSenhaButton.clicked.connect(self.alternar_senha)
+        self.esqueceuSenhaLabel.setText('<a href="#recuperar">Esqueceu a senha?</a>')
+        self.esqueceuSenhaLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.esqueceuSenhaLabel.linkActivated.connect(self.abrir_recuperacao)
 
     def fazer_login(self):
         usuario = self.usuarioLineEdit.text().strip()
@@ -313,10 +327,101 @@ class LoginWindow(QWidget):
         else:
             self.senhaLineEdit.setEchoMode(QLineEdit.Password)
 
+    def abrir_recuperacao(self):
+        self.recovery_window = ForgotPasswordWindow(self.database, self)
+        self.recovery_window.show()
+        self.hide()
 
-app = QApplication(sys.argv)
-database = Database()
-janela = LoginWindow(database)
-janela.show()
 
-sys.exit(app.exec_())
+class ForgotPasswordWindow(QWidget):
+    def __init__(self, database, login_window):
+        super().__init__()
+        self.database = database
+        self.login_window = login_window
+        self.setWindowTitle("Recuperar senha - Gestão de Estoque")
+        self.setMinimumSize(420, 390)
+        self.setStyleSheet("""
+            QWidget { background-color: #f4f6fb; color: #1e293b; }
+            QLineEdit { border: 1.5px solid #e6e9f0; border-radius: 10px;
+                        padding: 10px 14px; background-color: #ffffff; }
+            QLineEdit:focus { border-color: #2f6fed; }
+            QPushButton { min-height: 42px; border-radius: 10px; font-weight: bold; }
+            QPushButton#resetButton { background-color: #2f6fed; color: #ffffff; }
+            QPushButton#backButton { background-color: #ffffff; color: #475569;
+                                     border: 1.5px solid #e6e9f0; }
+        """)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(42, 36, 42, 36)
+        layout.setSpacing(12)
+
+        title = QLabel("Recuperar senha")
+        title.setStyleSheet("font-size: 18pt; font-weight: bold;")
+        subtitle = QLabel("Informe seu usuário e defina uma nova senha.")
+        subtitle.setStyleSheet("color: #64748b; margin-bottom: 10px;")
+        layout.addWidget(title)
+        layout.addWidget(subtitle)
+
+        layout.addWidget(QLabel("Usuário"))
+        self.username_edit = QLineEdit()
+        self.username_edit.setPlaceholderText("Digite seu usuário")
+        layout.addWidget(self.username_edit)
+
+        layout.addWidget(QLabel("Nova senha"))
+        self.password_edit = QLineEdit()
+        self.password_edit.setEchoMode(QLineEdit.Password)
+        self.password_edit.setPlaceholderText("Digite a nova senha")
+        layout.addWidget(self.password_edit)
+
+        layout.addWidget(QLabel("Confirmar nova senha"))
+        self.confirm_password_edit = QLineEdit()
+        self.confirm_password_edit.setEchoMode(QLineEdit.Password)
+        self.confirm_password_edit.setPlaceholderText("Repita a nova senha")
+        layout.addWidget(self.confirm_password_edit)
+
+        layout.addSpacing(12)
+        self.reset_button = QPushButton("Redefinir senha")
+        self.reset_button.setObjectName("resetButton")
+        self.reset_button.clicked.connect(self.reset_password)
+        layout.addWidget(self.reset_button)
+
+        self.back_button = QPushButton("Voltar para o login")
+        self.back_button.setObjectName("backButton")
+        self.back_button.clicked.connect(self.back_to_login)
+        layout.addWidget(self.back_button)
+        layout.addStretch()
+
+    def reset_password(self):
+        username = self.username_edit.text().strip()
+        password = self.password_edit.text()
+        confirmation = self.confirm_password_edit.text()
+        if not username or not password or not confirmation:
+            QMessageBox.warning(self, "Validação", "Preencha todos os campos.")
+            return
+        if len(password) < 4:
+            QMessageBox.warning(self, "Validação", "A senha deve ter pelo menos 4 caracteres.")
+            return
+        if password != confirmation:
+            QMessageBox.warning(self, "Validação", "As senhas não conferem.")
+            return
+        if not self.database.reset_password(username, password):
+            QMessageBox.warning(self, "Erro", "Usuário não encontrado ou inativo.")
+            return
+        QMessageBox.information(self, "Sucesso", "Senha redefinida com sucesso.")
+        self.back_to_login()
+
+    def back_to_login(self):
+        self.close()
+        self.login_window.show()
+
+
+def main():
+    app = QApplication(sys.argv)
+    database = Database()
+    janela = LoginWindow(database)
+    janela.show()
+    return app.exec_()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
