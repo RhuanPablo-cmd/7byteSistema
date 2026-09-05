@@ -80,6 +80,36 @@ class Database:
             (f"%{search}%", f"%{search}%"),
         ).fetchall()
 
+    def dashboard_summary(self, month_start, next_month_start):
+        return self.connection.execute(
+            """SELECT
+                 (SELECT COUNT(*) FROM products) AS product_count,
+                 COALESCE((SELECT SUM(quantity) FROM products), 0) AS stock_quantity,
+                 COALESCE((SELECT SUM(unit_price * quantity) FROM products), 0) AS stock_value,
+                 COALESCE((SELECT SUM(quantity) FROM movements
+                           WHERE movement_type = 'ENTRADA'
+                           AND movement_date >= ? AND movement_date < ?), 0) AS entries,
+                 COALESCE((SELECT SUM(quantity) FROM movements
+                           WHERE movement_type = 'SAIDA'
+                           AND movement_date >= ? AND movement_date < ?), 0) AS exits""",
+            (month_start, next_month_start, month_start, next_month_start),
+        ).fetchone()
+
+    def low_stock_products(self, limit=5):
+        return self.connection.execute(
+            """SELECT name, category, quantity FROM products
+               WHERE quantity <= 5 ORDER BY quantity, name LIMIT ?""",
+            (limit,),
+        ).fetchall()
+
+    def recent_movements(self, limit=8):
+        return self.connection.execute(
+            """SELECT m.movement_date, m.movement_type, p.name, m.quantity
+               FROM movements m JOIN products p ON p.id = m.product_id
+               ORDER BY m.movement_date DESC, m.id DESC LIMIT ?""",
+            (limit,),
+        ).fetchall()
+
     def save_product(self, name, category, unit_price, quantity):
         cursor = self.connection.execute(
             "INSERT INTO products (name, category, unit_price, quantity) VALUES (?, ?, ?, ?)",
@@ -182,6 +212,7 @@ class MainWindow(QMainWindow):
         self.configurar_estado_inicial()
         self.carregar_produtos()
         self.carregar_combos_produtos()
+        self.atualizar_dashboard()
         self.trocar_pagina(self.page_dashboard, self.btnDashboard, "Dashboard")
 
     def aplicar_estilo_moderno(self):
@@ -266,6 +297,50 @@ class MainWindow(QMainWindow):
         self.totalMovimentacoesLabel.setText("Total de Movimentações: 0")
         self.totalGeralLabel.setText("Total Geral: R$ 0,00")
 
+    def atualizar_dashboard(self):
+        hoje = QDate.currentDate()
+        primeiro_dia = hoje.addDays(1 - hoje.day())
+        proximo_mes = primeiro_dia.addMonths(1)
+        summary = self.database.dashboard_summary(
+            primeiro_dia.toString("yyyy-MM-dd"),
+            proximo_mes.toString("yyyy-MM-dd"),
+        )
+
+        self.lblProdutosV.setText(str(summary["product_count"]))
+        self.lblEstoqueV.setText(str(summary["stock_quantity"]))
+        self.lblEntradasV.setText(str(summary["entries"]))
+        self.lblSaidasV.setText(str(summary["exits"]))
+        self.valorTotalVal.setText(
+            f'R$ {summary["stock_value"]:,.2f}'.replace(",", "X").replace(".", ",").replace("X", ".")
+        )
+
+        low_stock = self.database.low_stock_products()
+        self.lowStockList.clear()
+        if low_stock:
+            for product in low_stock:
+                self.lowStockList.addItem(
+                    f'{product["name"]}  |  {product["quantity"]} un.'
+                )
+        else:
+            self.lowStockList.addItem("Nenhum produto com estoque baixo")
+
+        movements = self.database.recent_movements()
+        self.movTable.clearSpans()
+        self.movTable.setRowCount(len(movements))
+        for row_index, movement in enumerate(movements):
+            values = [
+                movement["movement_date"],
+                "Entrada" if movement["movement_type"] == "ENTRADA" else "Saída",
+                movement["name"],
+                movement["quantity"],
+            ]
+            for column, value in enumerate(values):
+                self.movTable.setItem(row_index, column, QTableWidgetItem(str(value)))
+        if not movements:
+            self.movTable.setRowCount(1)
+            self.movTable.setItem(0, 0, QTableWidgetItem("Nenhuma movimentação registrada"))
+            self.movTable.setSpan(0, 0, 1, self.movTable.columnCount())
+
     def trocar_pagina(self, pagina, botao_ativo, titulo):
         self.stackedWidget.setCurrentWidget(pagina)
         self.pageTitleLabel.setText(titulo)
@@ -314,6 +389,7 @@ class MainWindow(QMainWindow):
             return
         QMessageBox.information(self, "Sucesso", "Produto cadastrado com sucesso.")
         self.carregar_combos_produtos()
+        self.atualizar_dashboard()
         self.mostrar_produtos()
 
     def carregar_produtos(self):
@@ -358,6 +434,7 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, "Sucesso", "Movimentação registrada com sucesso.")
         self.carregar_produtos()
         self.carregar_combos_produtos()
+        self.atualizar_dashboard()
         self.mostrar_produtos()
 
     def registrar_entrada(self):

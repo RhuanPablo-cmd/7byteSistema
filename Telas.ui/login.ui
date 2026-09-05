@@ -124,7 +124,7 @@ QLabel { color: #ffffff; }</string>
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">QLabel#brandIcon { background-color: #2f6fed; border-radius: 10px; }</string>
+              <string notr="true">QLabel#brandIcon { background-color: #0b1f44; border-radius: 10px; }</string>
              </property>
              <property name="text">
               <string/>

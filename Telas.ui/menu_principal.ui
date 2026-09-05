@@ -118,7 +118,7 @@ QPushButton:checked {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLabel#brandIcon { background-color: #2f6fed; border-radius: 8px; }</string>
+            <string notr="true">QLabel#brandIcon { background-color: #0b1f44; border-radius: 8px; }</string>
            </property>
            <property name="text">
             <string/>
