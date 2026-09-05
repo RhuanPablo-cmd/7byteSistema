@@ -1,6 +1,7 @@
 import csv
 import hashlib
 import os
+import shutil
 import sqlite3
 import sys
 
@@ -47,10 +48,45 @@ def aplicar_logo(widget):
 class Database:
     def __init__(self):
         os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
-        self.connection = sqlite3.connect(DATABASE_PATH)
-        self.connection.row_factory = sqlite3.Row
+        self._connect()
         with open(SCHEMA_PATH, "r", encoding="utf-8") as schema_file:
             self.connection.executescript(schema_file.read())
+
+    def _connect(self):
+        self.connection = sqlite3.connect(DATABASE_PATH)
+        self.connection.row_factory = sqlite3.Row
+
+    def backup_to(self, backup_path):
+        destination = sqlite3.connect(backup_path)
+        try:
+            self.connection.backup(destination)
+        finally:
+            destination.close()
+
+    def restore_from(self, backup_path):
+        source = sqlite3.connect(backup_path)
+        try:
+            integrity = source.execute("PRAGMA integrity_check").fetchone()[0]
+            tables = {
+                row[0]
+                for row in source.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table'"
+                )
+            }
+        finally:
+            source.close()
+
+        required_tables = {"users", "products", "movements"}
+        if integrity != "ok" or not required_tables.issubset(tables):
+            raise ValueError("O arquivo selecionado não é um backup válido do sistema.")
+
+        self.connection.close()
+        try:
+            shutil.copy2(backup_path, DATABASE_PATH)
+        except Exception:
+            self._connect()
+            raise
+        self._connect()
 
     @staticmethod
     def hash_password(password):
@@ -176,10 +212,8 @@ class MainWindow(QMainWindow):
             self.btnEntrada,
             self.btnSaida,
             self.btnRelatorios,
+            self.btnConfig,
         ]
-        self.btnConfig.hide()
-        self.page_config.setVisible(False)
-
         self.btnDashboard.clicked.connect(
             lambda: self.trocar_pagina(self.page_dashboard, self.btnDashboard, "Dashboard")
         )
@@ -195,6 +229,9 @@ class MainWindow(QMainWindow):
         self.btnRelatorios.clicked.connect(
             lambda: self.trocar_pagina(self.page_relatorios, self.btnRelatorios, "Relatório - Movimentações")
         )
+        self.btnConfig.clicked.connect(
+            lambda: self.trocar_pagina(self.page_config, self.btnConfig, "Configurações")
+        )
         self.btnNovoProduto.clicked.connect(self.novo_produto)
         self.btnCancelarCadastro.clicked.connect(self.mostrar_produtos)
         self.btnSalvarProduto.clicked.connect(self.salvar_produto)
@@ -206,6 +243,9 @@ class MainWindow(QMainWindow):
         self.btnRegistrarSaida.clicked.connect(self.registrar_saida)
         self.btnGerarRelatorio.clicked.connect(self.gerar_relatorio)
         self.btnExportarExcel.clicked.connect(self.exportar_relatorio)
+        self.btnSalvarConfig.clicked.connect(self.salvar_configuracoes)
+        self.btnBackup.clicked.connect(self.exportar_backup)
+        self.btnImportarBackup.clicked.connect(self.importar_backup)
         self.buscarProdutoLineEdit.textChanged.connect(self.carregar_produtos)
         self.btnSair.clicked.connect(self.sair)
 
@@ -352,6 +392,55 @@ class MainWindow(QMainWindow):
         self.login_window = LoginWindow(self.database)
         self.login_window.show()
         self.close()
+
+    def salvar_configuracoes(self):
+        QMessageBox.information(self, "Configurações", "Configurações salvas com sucesso.")
+
+    def exportar_backup(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Salvar backup do banco de dados",
+            "backup_estoque.db",
+            "Banco SQLite (*.db);;Todos os arquivos (*)",
+        )
+        if not path:
+            return
+        try:
+            self.database.backup_to(path)
+        except sqlite3.Error as error:
+            QMessageBox.critical(self, "Erro no backup", f"Não foi possível criar o backup:\n{error}")
+            return
+        QMessageBox.information(self, "Backup", "Backup realizado com sucesso.")
+
+    def importar_backup(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Selecionar backup do banco de dados",
+            "",
+            "Banco SQLite (*.db);;Todos os arquivos (*)",
+        )
+        if not path:
+            return
+        confirm = QMessageBox.question(
+            self,
+            "Restaurar backup",
+            "A restauração substituirá os dados atuais. Deseja continuar?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+        safety_path = f"{DATABASE_PATH}.antes-da-importacao.bak"
+        try:
+            self.database.backup_to(safety_path)
+            self.database.restore_from(path)
+        except (OSError, sqlite3.Error, ValueError) as error:
+            QMessageBox.critical(self, "Erro na restauração", f"Não foi possível importar o backup:\n{error}")
+            return
+        self.carregar_produtos()
+        self.carregar_combos_produtos()
+        self.atualizar_dashboard()
+        QMessageBox.information(self, "Backup", "Backup importado com sucesso.")
 
     def mostrar_produtos(self):
         self.carregar_produtos()

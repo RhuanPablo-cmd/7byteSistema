@@ -2160,6 +2160,62 @@ QPushButton:hover { background-color: #255bc4; }</string>
                 </item>
                </layout>
               </item>
+              <item>
+               <widget class="QLabel" name="backupLabel">
+                <property name="styleSheet">
+                 <string notr="true">font-size: 11pt; font-weight: bold; margin-top: 12px;</string>
+                </property>
+                <property name="text">
+                 <string>Backup do banco de dados</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="backupDescriptionLabel">
+                <property name="styleSheet">
+                 <string notr="true">color: #64748b;</string>
+                </property>
+                <property name="text">
+                 <string>Exporte os dados atuais ou restaure um arquivo de backup.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="backupActionsLayout">
+                <item>
+                 <widget class="QPushButton" name="btnBackup">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>38</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="text">
+                   <string>Exportar backup</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnImportarBackup">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>38</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="text">
+                   <string>Importar backup</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
              </layout>
             </widget>
            </item>
