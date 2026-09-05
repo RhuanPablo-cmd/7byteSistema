@@ -135,6 +135,9 @@ class MainWindow(QMainWindow):
         self.brandIcon.setPixmap(
             QPixmap(LOGO_PATH).scaled(34, 34, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         )
+        self.brandIcon.setStyleSheet(
+            "QLabel#brandIcon { background-color: #0b1f44; border-radius: 8px; }"
+        )
         self.aplicar_estilo_moderno()
 
         self.nav_buttons = [
@@ -188,7 +191,7 @@ class MainWindow(QMainWindow):
                 background-color: #ffffff;
                 border: 1px solid #d7deea;
                 border-radius: 8px;
-                padding: 8px 12px;
+                padding: 0 12px;
                 selection-background-color: #2563eb;
             }
             QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QTextEdit:focus {
@@ -208,10 +211,16 @@ class MainWindow(QMainWindow):
             field.setStyleSheet(field_style)
         for field in self.findChildren(QDateEdit):
             field.setMinimumHeight(40)
-            field.setStyleSheet(field_style)
+            field.setMinimumWidth(142)
+            field.setDisplayFormat("dd/MM/yyyy")
+            field.setStyleSheet(field_style.replace("padding: 0 12px;", "padding: 0 8px;"))
         for field in self.findChildren(QTextEdit):
             field.setMinimumHeight(92)
-            field.setStyleSheet(field_style)
+            field.setStyleSheet(field_style.replace("padding: 0 12px;", "padding: 8px 12px;"))
+        for field in self.findChildren(QLineEdit):
+            field.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        for field in self.findChildren(QDateEdit):
+            field.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
 
         table_style = """
             QTableWidget {
