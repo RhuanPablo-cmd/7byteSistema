@@ -11,10 +11,14 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QMainWindow,
     QMessageBox,
+    QTableWidget,
     QTableWidgetItem,
     QLineEdit,
+    QComboBox,
+    QDateEdit,
     QLabel,
     QPushButton,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -131,6 +135,7 @@ class MainWindow(QMainWindow):
         self.brandIcon.setPixmap(
             QPixmap(LOGO_PATH).scaled(34, 34, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         )
+        self.aplicar_estilo_moderno()
 
         self.nav_buttons = [
             self.btnDashboard,
@@ -175,6 +180,62 @@ class MainWindow(QMainWindow):
         self.carregar_produtos()
         self.carregar_combos_produtos()
         self.trocar_pagina(self.page_dashboard, self.btnDashboard, "Dashboard")
+
+    def aplicar_estilo_moderno(self):
+        field_style = """
+            QLineEdit, QComboBox, QDateEdit, QTextEdit {
+                color: #172033;
+                background-color: #ffffff;
+                border: 1px solid #d7deea;
+                border-radius: 8px;
+                padding: 8px 12px;
+                selection-background-color: #2563eb;
+            }
+            QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QTextEdit:focus {
+                border: 2px solid #3b82f6;
+                background-color: #ffffff;
+            }
+            QLineEdit:disabled {
+                color: #64748b;
+                background-color: #f1f5f9;
+            }
+        """
+        for field in self.findChildren(QLineEdit):
+            field.setMinimumHeight(40)
+            field.setStyleSheet(field_style)
+        for field in self.findChildren(QComboBox):
+            field.setMinimumHeight(40)
+            field.setStyleSheet(field_style)
+        for field in self.findChildren(QDateEdit):
+            field.setMinimumHeight(40)
+            field.setStyleSheet(field_style)
+        for field in self.findChildren(QTextEdit):
+            field.setMinimumHeight(92)
+            field.setStyleSheet(field_style)
+
+        table_style = """
+            QTableWidget {
+                color: #172033;
+                background-color: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                gridline-color: #eef2f7;
+                alternate-background-color: #f8fafc;
+            }
+            QTableWidget::item { padding: 8px; }
+            QHeaderView::section {
+                color: #475569;
+                background-color: #f8fafc;
+                border: none;
+                border-bottom: 1px solid #e2e8f0;
+                padding: 10px 8px;
+                font-weight: bold;
+            }
+        """
+        for table in self.findChildren(QTableWidget):
+            table.setAlternatingRowColors(True)
+            table.setShowGrid(False)
+            table.setStyleSheet(table_style)
 
     def configurar_estado_inicial(self):
         hoje = QDate.currentDate()
@@ -328,6 +389,7 @@ class LoginWindow(QWidget):
         self.database = database
         uic.loadUi(os.path.join(UI_DIR, "login.ui"), self)
         aplicar_logo(self)
+        self.aplicar_estilo_login()
 
         # Conecta os botões da tela de login
         self.entrarButton.clicked.connect(self.fazer_login)
@@ -335,6 +397,36 @@ class LoginWindow(QWidget):
         self.esqueceuSenhaLabel.setText('<a href="#recuperar">Esqueceu a senha?</a>')
         self.esqueceuSenhaLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.esqueceuSenhaLabel.linkActivated.connect(self.abrir_recuperacao)
+
+    def aplicar_estilo_login(self):
+        field_style = """
+            QLineEdit {
+                color: #172033;
+                background-color: #ffffff;
+                border: 1px solid #d7deea;
+                border-radius: 9px;
+                padding: 9px 14px;
+                min-height: 42px;
+            }
+            QLineEdit:focus {
+                border: 2px solid #3b82f6;
+                background-color: #ffffff;
+            }
+        """
+        self.usuarioLineEdit.setStyleSheet(field_style)
+        self.senhaLineEdit.setStyleSheet(field_style)
+        self.entrarButton.setMinimumHeight(46)
+        self.entrarButton.setStyleSheet("""
+            QPushButton {
+                color: #ffffff;
+                background-color: #2563eb;
+                border: none;
+                border-radius: 9px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #1d4ed8; }
+            QPushButton:pressed { background-color: #1e40af; }
+        """)
 
     def fazer_login(self):
         usuario = self.usuarioLineEdit.text().strip()
