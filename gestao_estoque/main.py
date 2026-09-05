@@ -5,6 +5,7 @@ import sqlite3
 import sys
 
 from PyQt5.QtCore import QDate, Qt
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -24,6 +25,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_PATH = os.path.join(BASE_DIR, "base_dados", "estoque.db")
 SCHEMA_PATH = os.path.join(BASE_DIR, "base_dados", "estoque.sql")
 UI_DIR = os.path.join(BASE_DIR, "Telas.ui")
+LOGO_PATH = os.path.join(BASE_DIR, "img", "7byte.png")
+
+
+def aplicar_logo(widget):
+    logo = QPixmap(LOGO_PATH)
+    if logo.isNull():
+        return
+    widget.setWindowIcon(QIcon(logo))
+    if hasattr(widget, "brandIcon"):
+        widget.brandIcon.setPixmap(
+            logo.scaled(44, 44, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        )
+        widget.brandIcon.setScaledContents(False)
 
 
 class Database:
@@ -113,6 +127,10 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.database = database
         uic.loadUi(os.path.join(UI_DIR, "menu_principal.ui"), self)
+        aplicar_logo(self)
+        self.brandIcon.setPixmap(
+            QPixmap(LOGO_PATH).scaled(34, 34, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        )
 
         self.nav_buttons = [
             self.btnDashboard,
@@ -309,6 +327,7 @@ class LoginWindow(QWidget):
         super().__init__()
         self.database = database
         uic.loadUi(os.path.join(UI_DIR, "login.ui"), self)
+        aplicar_logo(self)
 
         # Conecta os botões da tela de login
         self.entrarButton.clicked.connect(self.fazer_login)
@@ -350,6 +369,7 @@ class ForgotPasswordWindow(QWidget):
         self.login_window = login_window
         self.setWindowTitle("Recuperar senha - Gestão de Estoque")
         self.setMinimumSize(420, 390)
+        aplicar_logo(self)
         self.setStyleSheet("""
             QWidget { background-color: #f4f6fb; color: #1e293b; }
             QLineEdit { border: 1.5px solid #e6e9f0; border-radius: 10px;
