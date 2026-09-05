@@ -282,7 +282,7 @@ Estoque</string>
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
-          <string>  Configurações</string>
+          <string>  BACKUP</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -2091,74 +2091,9 @@ QLineEdit:focus { border: 1.5px solid #2f6fed; background-color: #ffffff; }</str
                  <string notr="true">font-size: 12pt; font-weight: bold;</string>
                 </property>
                 <property name="text">
-                 <string>Configurações</string>
+                 <string>BACKUP</string>
                 </property>
                </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="nomeSistemaLabel">
-                <property name="text">
-                 <string>Nome do Sistema</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="nomeSistemaLineEdit">
-                <property name="text">
-                 <string>Gestão de Estoque</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="emailAdminLabel">
-                <property name="text">
-                 <string>E-mail do Administrador</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="emailAdminLineEdit">
-                <property name="text">
-                 <string>admin@empresa.com</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="configActionsLayout">
-                <item>
-                 <spacer name="configActionsSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btnSalvarConfig">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>38</height>
-                   </size>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton { background-color: #2f6fed; color: #ffffff; border: none; border-radius: 9px; padding: 0 18px; font-weight: bold; }
-QPushButton:hover { background-color: #255bc4; }</string>
-                  </property>
-                  <property name="text">
-                   <string>Salvar alterações</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
               </item>
               <item>
                <widget class="QLabel" name="backupLabel">

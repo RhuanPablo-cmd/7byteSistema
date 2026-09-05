@@ -243,7 +243,6 @@ class MainWindow(QMainWindow):
         self.btnRegistrarSaida.clicked.connect(self.registrar_saida)
         self.btnGerarRelatorio.clicked.connect(self.gerar_relatorio)
         self.btnExportarExcel.clicked.connect(self.exportar_relatorio)
-        self.btnSalvarConfig.clicked.connect(self.salvar_configuracoes)
         self.btnBackup.clicked.connect(self.exportar_backup)
         self.btnImportarBackup.clicked.connect(self.importar_backup)
         self.buscarProdutoLineEdit.textChanged.connect(self.carregar_produtos)
@@ -392,9 +391,6 @@ class MainWindow(QMainWindow):
         self.login_window = LoginWindow(self.database)
         self.login_window.show()
         self.close()
-
-    def salvar_configuracoes(self):
-        QMessageBox.information(self, "Configurações", "Configurações salvas com sucesso.")
 
     def exportar_backup(self):
         path, _ = QFileDialog.getSaveFileName(
