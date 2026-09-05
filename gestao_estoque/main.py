@@ -456,6 +456,9 @@ class MainWindow(QMainWindow):
             for column, value in enumerate(values):
                 self.relatorioTable.setItem(row_index, column, QTableWidgetItem(str(value)))
         self.totalMovimentacoesLabel.setText(f"Total de Movimentações: {len(rows)}")
+        total = sum(row["total"] for row in rows)
+        total_formatado = f"R$ {total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        self.totalGeralLabel.setText(f"Total Geral: {total_formatado}")
 
     def exportar_relatorio(self):
         self.gerar_relatorio()
