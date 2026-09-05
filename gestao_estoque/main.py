@@ -120,8 +120,9 @@ class MainWindow(QMainWindow):
             self.btnEntrada,
             self.btnSaida,
             self.btnRelatorios,
-            self.btnConfig,
         ]
+        self.btnConfig.hide()
+        self.page_config.setVisible(False)
 
         self.btnDashboard.clicked.connect(
             lambda: self.trocar_pagina(self.page_dashboard, self.btnDashboard, "Dashboard")
@@ -138,10 +139,6 @@ class MainWindow(QMainWindow):
         self.btnRelatorios.clicked.connect(
             lambda: self.trocar_pagina(self.page_relatorios, self.btnRelatorios, "Relatório - Movimentações")
         )
-        self.btnConfig.clicked.connect(
-            lambda: self.trocar_pagina(self.page_config, self.btnConfig, "Configurações")
-        )
-
         self.btnNovoProduto.clicked.connect(self.novo_produto)
         self.btnCancelarCadastro.clicked.connect(self.mostrar_produtos)
         self.btnSalvarProduto.clicked.connect(self.salvar_produto)
@@ -153,13 +150,33 @@ class MainWindow(QMainWindow):
         self.btnRegistrarSaida.clicked.connect(self.registrar_saida)
         self.btnGerarRelatorio.clicked.connect(self.gerar_relatorio)
         self.btnExportarExcel.clicked.connect(self.exportar_relatorio)
-        self.btnSalvarConfig.clicked.connect(self.salvar_configuracoes)
         self.buscarProdutoLineEdit.textChanged.connect(self.carregar_produtos)
         self.btnSair.clicked.connect(self.sair)
 
+        self.configurar_estado_inicial()
         self.carregar_produtos()
         self.carregar_combos_produtos()
         self.trocar_pagina(self.page_dashboard, self.btnDashboard, "Dashboard")
+
+    def configurar_estado_inicial(self):
+        hoje = QDate.currentDate()
+        for date_edit in (
+            self.dataEntradaDateEdit,
+            self.dataSaidaDateEdit,
+            self.periodoDeDateEdit,
+            self.periodoAteDateEdit,
+        ):
+            date_edit.setDate(hoje)
+
+        self.lblProdutosV.setText("0")
+        self.lblEstoqueV.setText("0")
+        self.lblEntradasV.setText("0")
+        self.lblSaidasV.setText("0")
+        self.valorTotalVal.setText("R$ 0,00")
+        self.lowStockList.clear()
+        self.movTable.setRowCount(0)
+        self.totalMovimentacoesLabel.setText("Total de Movimentações: 0")
+        self.totalGeralLabel.setText("Total Geral: R$ 0,00")
 
     def trocar_pagina(self, pagina, botao_ativo, titulo):
         self.stackedWidget.setCurrentWidget(pagina)
@@ -286,13 +303,6 @@ class MainWindow(QMainWindow):
             for row in range(self.relatorioTable.rowCount()):
                 writer.writerow([self.relatorioTable.item(row, col).text() for col in range(self.relatorioTable.columnCount())])
         QMessageBox.information(self, "Sucesso", "Relatório exportado com sucesso.")
-
-    def salvar_configuracoes(self):
-        if not self.nomeSistemaLineEdit.text().strip() or not self.emailAdminLineEdit.text().strip():
-            QMessageBox.warning(self, "Validação", "Preencha o nome do sistema e o e-mail do administrador.")
-            return
-        QMessageBox.information(self, "Sucesso", "Configurações validadas e salvas.")
-
 
 class LoginWindow(QWidget):
     def __init__(self, database):
