@@ -20,38 +20,28 @@
    <string>Gestão de Estoque - Acesse sua conta</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#LoginScreen {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eef4ff, stop:1 #e8f0fb);
-}
-QLabel { color: #0f172a; }
-QFrame { border: none; }
-</string>
+   <string notr="true">QWidget#LoginScreen { background-color: #f4f6fb; }</string>
   </property>
   <layout class="QHBoxLayout" name="rootLayout">
    <property name="spacing">
     <number>0</number>
    </property>
    <property name="leftMargin">
-    <number>28</number>
+    <number>40</number>
    </property>
    <property name="topMargin">
-    <number>28</number>
+    <number>40</number>
    </property>
    <property name="rightMargin">
-    <number>28</number>
+    <number>40</number>
    </property>
    <property name="bottomMargin">
-    <number>28</number>
+    <number>40</number>
    </property>
    <item>
     <widget class="QFrame" name="cardFrame">
      <property name="styleSheet">
-      <string notr="true">QFrame#cardFrame {
-  background-color: #ffffff;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 24px;
-}
-</string>
+      <string notr="true">QFrame#cardFrame { background-color: #ffffff; border-radius: 20px; }</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -93,12 +83,10 @@ QFrame { border: none; }
         </property>
         <property name="styleSheet">
          <string notr="true">QFrame#leftPanel {
-  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0b1635, stop:0.5 #122852, stop:1 #183f7d);
-  border-top-left-radius: 24px;
-  border-bottom-left-radius: 24px;
+  background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0e1c3c, stop:1 #16294f);
+  border-top-left-radius: 20px; border-bottom-left-radius: 20px;
 }
-QLabel { color: #ffffff; }
-</string>
+QLabel { color: #ffffff; }</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -480,13 +468,10 @@ QLineEdit:focus {
              <property name="styleSheet">
               <string notr="true">QToolButton {
   border: none;
-  background: #edf4ff;
-  color: #64748b;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  background: transparent;
+  color: #9aa4b8;
 }
-QToolButton:hover { color: #1d4ed8; background: #dfeaff; }
-QToolButton:pressed { background: #cfe1ff; }</string>
+QToolButton:hover { color: #2f6fed; }</string>
              </property>
              <property name="text">
               <string>👁</string>
@@ -600,14 +585,13 @@ QToolButton:pressed { background: #cfe1ff; }</string>
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
-  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2563eb, stop:1 #1d4ed8);
+  background-color: #2f6fed;
   color: #ffffff;
   border: none;
   border-radius: 12px;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
 }
-QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1d4ed8, stop:1 #1e40af); }
-QPushButton:pressed { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1e40af, stop:1 #1e3a8a); }
+QPushButton:hover { background-color: #255bc4; }
+QPushButton:pressed { background-color: #1f4ea3; }
 QPushButton:disabled { background-color: #b7c6ef; }</string>
            </property>
            <property name="text">

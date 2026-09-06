@@ -20,12 +20,8 @@
    <string>Gestão de Estoque</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMainWindow {
-  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eef4ff, stop:1 #edf2f7);
-}
-QLabel { color: #1e293b; }
-QWidget { color: #1e293b; }
-</string>
+   <string notr="true">QMainWindow { background-color: #f4f6fb; }
+QLabel { color: #1e293b; }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="rootLayout">
@@ -63,36 +59,24 @@ QWidget { color: #1e293b; }
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">QFrame#sidebarFrame {
-  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0b1732, stop:0.55 #0f2347, stop:1 #101e3d);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-}
+       <string notr="true">QFrame#sidebarFrame { background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0e1c3c, stop:1 #101f42); }
 QLabel { color: #cdd6ee; }
 QPushButton {
   text-align: left;
-  color: #b9c8ec;
+  color: #aab6d6;
   background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  padding: 12px 14px;
+  border: none;
+  border-radius: 11px;
+  padding: 11px 14px;
   font-size: 10pt;
-  min-height: 40px;
 }
-QPushButton:hover {
-  background-color: rgba(255,255,255,0.06);
-  color: #ffffff;
-  border-color: rgba(255,255,255,0.08);
-}
+QPushButton:hover { background-color: rgba(255,255,255,0.07); color: #ffffff; }
 QPushButton:checked {
-  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2563eb, stop:1 #1d4ed8);
+  background-color: #2f6fed;
   color: #ffffff;
   font-weight: bold;
-  border-color: rgba(255,255,255,0.08);
 }
-QPushButton:pressed {
-  background-color: #1f4bb3;
-  color: #ffffff;
-}</string>
+QPushButton:pressed { background-color: #255bc4; color: #ffffff; }</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -135,11 +119,7 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLabel#brandIcon {
-  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1d4ed8, stop:1 #0f172a);
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-}</string>
+            <string notr="true">QLabel#brandIcon { background-color: #0b1f44; border-radius: 10px; }</string>
            </property>
            <property name="text">
             <string/>
