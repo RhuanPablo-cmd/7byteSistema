@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
+    QHBoxLayout,
     QMainWindow,
     QMessageBox,
     QTableWidget,
@@ -146,13 +147,45 @@ class Database:
             (limit,),
         ).fetchall()
 
-    def save_product(self, name, category, unit_price, quantity):
-        cursor = self.connection.execute(
-            "INSERT INTO products (name, category, unit_price, quantity) VALUES (?, ?, ?, ?)",
-            (name, category, unit_price, quantity),
-        )
-        self.connection.commit()
+    def save_product(self, name, category, unit_price, quantity, movement_date):
+        with self.connection:
+            cursor = self.connection.execute(
+                "INSERT INTO products (name, category, unit_price, quantity) VALUES (?, ?, ?, ?)",
+                (name, category, unit_price, quantity),
+            )
+            if quantity > 0:
+                self.connection.execute(
+                    """INSERT INTO movements
+                       (product_id, movement_type, quantity, movement_date, notes)
+                       VALUES (?, 'ENTRADA', ?, ?, 'Estoque inicial')""",
+                    (cursor.lastrowid, quantity, movement_date),
+                )
         return cursor.lastrowid
+
+    def update_product(self, product_id, name, category, unit_price):
+        with self.connection:
+            cursor = self.connection.execute(
+                "UPDATE products SET name = ?, category = ?, unit_price = ? WHERE id = ?",
+                (name, category, unit_price, product_id),
+            )
+        return cursor.rowcount > 0
+
+    def delete_product(self, product_id):
+        product = self.connection.execute(
+            "SELECT quantity FROM products WHERE id = ?", (product_id,)
+        ).fetchone()
+        if product is None:
+            return False
+        if product["quantity"] != 0:
+            raise ValueError("Zere o estoque antes de excluir o produto.")
+        movement = self.connection.execute(
+            "SELECT 1 FROM movements WHERE product_id = ? LIMIT 1", (product_id,)
+        ).fetchone()
+        if movement is not None:
+            raise ValueError("Este produto possui histórico e não pode ser excluído.")
+        with self.connection:
+            self.connection.execute("DELETE FROM products WHERE id = ?", (product_id,))
+        return True
 
     def product_by_name(self, name):
         return self.connection.execute(
@@ -235,10 +268,10 @@ class MainWindow(QMainWindow):
         self.btnNovoProduto.clicked.connect(self.novo_produto)
         self.btnCancelarCadastro.clicked.connect(self.mostrar_produtos)
         self.btnSalvarProduto.clicked.connect(self.salvar_produto)
-        self.btnNovoProdutoEntrada.clicked.connect(self.abrir_cadastro)
+        self.btnNovoProdutoEntrada.clicked.connect(self.novo_produto)
         self.btnCancelarEntrada.clicked.connect(self.mostrar_produtos)
         self.btnRegistrarEntrada.clicked.connect(self.registrar_entrada)
-        self.btnNovoProdutoSaida.clicked.connect(self.abrir_cadastro)
+        self.btnNovoProdutoSaida.clicked.connect(self.novo_produto)
         self.btnCancelarSaida.clicked.connect(self.mostrar_produtos)
         self.btnRegistrarSaida.clicked.connect(self.registrar_saida)
         self.btnGerarRelatorio.clicked.connect(self.gerar_relatorio)
@@ -451,6 +484,30 @@ class MainWindow(QMainWindow):
         self.tipoComboBox.setCurrentIndex(0)
         self.valorUnitLineEdit.clear()
         self.qtdInicialLineEdit.clear()
+        self.qtdInicialLineEdit.setEnabled(True)
+        self.qtdInicialLabel.setText("Quantidade Inicial")
+        self.cadastroFormTitle.setText("Dados do Produto")
+        self.btnSalvarProduto.setText("💾  Salvar")
+        self.abrir_cadastro()
+
+    def editar_produto(self, product_id):
+        product = self.database.connection.execute(
+            "SELECT id, name, category, unit_price, quantity FROM products WHERE id = ?",
+            (product_id,),
+        ).fetchone()
+        if product is None:
+            QMessageBox.warning(self, "Produto", "Este produto não está mais cadastrado.")
+            self.carregar_produtos()
+            return
+        self.idLineEdit.setText(str(product["id"]))
+        self.nomeProdutoLineEdit.setText(product["name"])
+        self.tipoComboBox.setCurrentText(product["category"])
+        self.valorUnitLineEdit.setText(f'{product["unit_price"]:.2f}'.replace(".", ","))
+        self.qtdInicialLineEdit.setText(str(product["quantity"]))
+        self.qtdInicialLineEdit.setEnabled(False)
+        self.qtdInicialLabel.setText("Estoque atual (ajustado por movimentações)")
+        self.cadastroFormTitle.setText("Editar Produto")
+        self.btnSalvarProduto.setText("💾  Salvar alterações")
         self.abrir_cadastro()
 
     def salvar_produto(self):
@@ -458,21 +515,32 @@ class MainWindow(QMainWindow):
         category = self.tipoComboBox.currentText()
         price_text = self.valorUnitLineEdit.text().strip().replace(",", ".")
         quantity_text = self.qtdInicialLineEdit.text().strip()
+        product_id = int(self.idLineEdit.text())
         try:
             price = float(price_text)
-            quantity = int(quantity_text)
+            quantity = int(quantity_text) if product_id == 0 else None
         except ValueError:
             QMessageBox.warning(self, "Validação", "Informe valor e quantidade numéricos válidos.")
             return
-        if not name or category == "Selecione o tipo" or price <= 0 or quantity < 0:
+        if not name or category == "Selecione o tipo" or price <= 0 or (quantity is not None and quantity < 0):
             QMessageBox.warning(self, "Validação", "Preencha todos os campos corretamente.")
             return
         try:
-            self.database.save_product(name, category, price, quantity)
+            if product_id == 0:
+                self.database.save_product(
+                    name,
+                    category,
+                    price,
+                    quantity,
+                    QDate.currentDate().toString("yyyy-MM-dd"),
+                )
+            else:
+                self.database.update_product(product_id, name, category, price)
         except sqlite3.IntegrityError:
             QMessageBox.warning(self, "Validação", "Já existe um produto com esse nome.")
             return
-        QMessageBox.information(self, "Sucesso", "Produto cadastrado com sucesso.")
+        message = "Produto cadastrado com sucesso." if product_id == 0 else "Produto atualizado com sucesso."
+        QMessageBox.information(self, "Sucesso", message)
         self.carregar_combos_produtos()
         self.atualizar_dashboard()
         self.mostrar_produtos()
@@ -483,10 +551,46 @@ class MainWindow(QMainWindow):
         for row_index, product in enumerate(products):
             values = [product["id"], product["name"], product["category"],
                       f'{product["unit_price"]:.2f}', product["quantity"],
-                      f'{product["total"]:.2f}', ""]
+                      f'{product["total"]:.2f}']
             for column, value in enumerate(values):
                 self.produtosTable.setItem(row_index, column, QTableWidgetItem(str(value)))
+            actions_widget = QWidget(self.produtosTable)
+            actions_layout = QHBoxLayout(actions_widget)
+            actions_layout.setContentsMargins(4, 2, 4, 2)
+            actions_layout.setSpacing(4)
+            edit_button = QPushButton("Editar", actions_widget)
+            delete_button = QPushButton("Excluir", actions_widget)
+            edit_button.clicked.connect(
+                lambda checked=False, product_id=product["id"]: self.editar_produto(product_id)
+            )
+            delete_button.clicked.connect(
+                lambda checked=False, product_id=product["id"]: self.excluir_produto(product_id)
+            )
+            actions_layout.addWidget(edit_button)
+            actions_layout.addWidget(delete_button)
+            self.produtosTable.setCellWidget(row_index, 6, actions_widget)
+        self.produtosTable.setColumnWidth(6, 160)
         self.totalProdutosLabel.setText(f"Total: {len(products)} produtos")
+
+    def excluir_produto(self, product_id):
+        answer = QMessageBox.question(
+            self,
+            "Excluir produto",
+            "Deseja excluir este produto? Produtos com estoque ou histórico não podem ser excluídos.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if answer != QMessageBox.Yes:
+            return
+        try:
+            deleted = self.database.delete_product(product_id)
+        except ValueError as error:
+            QMessageBox.warning(self, "Não foi possível excluir", str(error))
+            return
+        if deleted:
+            self.carregar_produtos()
+            self.carregar_combos_produtos()
+            self.atualizar_dashboard()
 
     def carregar_combos_produtos(self):
         products = self.database.list_products()
