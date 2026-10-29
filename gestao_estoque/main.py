@@ -28,10 +28,19 @@ from PyQt5 import uic
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_PATH = os.path.join(BASE_DIR, "base_dados", "estoque.db")
-SCHEMA_PATH = os.path.join(BASE_DIR, "base_dados", "estoque.sql")
-UI_DIR = os.path.join(BASE_DIR, "Telas.ui")
-LOGO_PATH = os.path.join(BASE_DIR, "img", "7byte.png")
+RESOURCE_DIR = getattr(sys, "_MEIPASS", BASE_DIR)
+DATABASE_DIR = (
+    os.path.join(
+        os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
+        "7byteSistema",
+    )
+    if getattr(sys, "frozen", False)
+    else os.path.join(BASE_DIR, "base_dados")
+)
+DATABASE_PATH = os.path.join(DATABASE_DIR, "estoque.db")
+SCHEMA_PATH = os.path.join(RESOURCE_DIR, "base_dados", "estoque.sql")
+UI_DIR = os.path.join(RESOURCE_DIR, "Telas.ui")
+LOGO_PATH = os.path.join(RESOURCE_DIR, "img", "7byte.png")
 
 
 def aplicar_logo(widget):
@@ -230,6 +239,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.database = database
         uic.loadUi(os.path.join(UI_DIR, "menu_principal.ui"), self)
+        self.produtosTable.horizontalHeader().setStretchLastSection(False)
         aplicar_logo(self)
         self.brandIcon.setPixmap(
             QPixmap(LOGO_PATH).scaled(34, 34, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -572,7 +582,7 @@ class MainWindow(QMainWindow):
             actions_layout.addWidget(delete_button)
             self.produtosTable.setCellWidget(row_index, 6, actions_widget)
             self.produtosTable.setRowHeight(row_index, 40)
-        self.produtosTable.setColumnWidth(6, 160)
+        self.produtosTable.setColumnWidth(6, 190)
         self.totalProdutosLabel.setText(f"Total: {len(products)} produtos")
 
     def excluir_produto(self, product_id):

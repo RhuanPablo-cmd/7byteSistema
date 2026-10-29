@@ -15,34 +15,34 @@ Aplicação desktop para controle de produtos e movimentações de estoque. O si
 
 - Windows
 - Python 3.10 ou superior
-- PyQt5
+- Dependencias Python listadas em `requirements.txt`
 
 ## Instalação e execução
 
-Abra o PowerShell na pasta raiz do projeto, onde estão `README.md`, `base_dados/` e `gestao_estoque/`. Instale a dependência e inicie a aplicação:
-
-```powershell
-py -m pip install PyQt5
-py gestao_estoque/main.py
-```
-
-Para isolar as dependências em um ambiente virtual:
+Abra o PowerShell na pasta raiz do projeto e instale as dependências:
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install PyQt5
+python -m pip install -r requirements.txt
 python gestao_estoque\main.py
 ```
 
-Se o PowerShell bloquear a ativação do ambiente virtual, execute a política somente para a sessão atual e tente novamente:
+## Gerar o executável para Windows
 
+Com Python instalado, execute na raiz do projeto:
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\.venv\Scripts\Activate.ps1
+py -m venv .venv-build
+.\build.ps1
 ```
 
-O programa cria `base_dados/estoque.db` automaticamente, caso o banco ainda não exista, usando a estrutura definida em `base_dados/estoque.sql`.
+O script instala as dependências de build, cria um ícone `.ico` a partir de `img/7byte.png` e gera o executável de arquivo único:
+
+```powershell
+dist\7byteSistema.exe
+```
+
+O executável inclui as telas, o esquema do banco e o logo. Ao executar, os dados são gravados em `%LOCALAPPDATA%\7byteSistema\estoque.db`, fora do executável, para que continuem disponíveis após fechar o programa. No modo Python, o banco fica em `base_dados/estoque.db`. Em ambos os casos, ele é criado automaticamente usando `base_dados/estoque.sql`.
 
 ## Primeiro acesso
 
@@ -59,10 +59,15 @@ Altere essa senha antes de usar o sistema com dados reais. A redefinição dispo
 - `gestao_estoque/main.py`: inicialização, interface e regras da aplicação.
 - `Telas.ui/`: telas de login e gestão.
 - `base_dados/estoque.sql`: criação das tabelas de usuários, produtos e movimentações, além da conta inicial.
-- `base_dados/estoque.db`: banco SQLite utilizado em execução; contém os dados cadastrados e não deve ser apagado sem backup.
+- `base_dados/estoque.db`: banco local criado durante a execução em modo Python; não é versionado e não deve ser apagado sem backup.
 - `img/7byte.png`: identidade visual exibida pela aplicação.
+- `build.ps1` e `requirements-build.txt`: geração reproduzível do executável Windows.
 
 Os backups podem ser criados e restaurados pela página **Configurações**. Guarde as cópias em local separado do computador onde o sistema é executado.
+
+## Publicar no GitHub
+
+O `.gitignore` exclui ambientes virtuais, arquivos temporários, banco de dados local, telas antigas de backup e artefatos de build. Para compartilhar o executável, gere-o com `build.ps1` e publique `dist/7byteSistema.exe` como um artefato de uma **Release** do GitHub; ele não é incluído no repositório de código.
 
 ## Observações de segurança
 

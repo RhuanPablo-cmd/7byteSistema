@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local environments
+.venv/
+.venv*/
+venv/
+
+# Local databases and backups
+base_dados/estoque.db
+base_dados/estoque.db-*
+base_dados/*.sqlite
+base_dados/*.sqlite3
+base_dados/backup*/
+*.bak
+
+# Generated application
+build/
+dist/
+
+# Old UI backups
+Telas.ui/BKPTelas/
+
+# Local configuration and operating-system files
+.env
+.env.*
+!.env.example
+Thumbs.db
+desktop.ini
