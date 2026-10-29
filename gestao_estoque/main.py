@@ -560,6 +560,8 @@ class MainWindow(QMainWindow):
             actions_layout.setSpacing(4)
             edit_button = QPushButton("Editar", actions_widget)
             delete_button = QPushButton("Excluir", actions_widget)
+            edit_button.setMinimumHeight(30)
+            delete_button.setMinimumHeight(30)
             edit_button.clicked.connect(
                 lambda checked=False, product_id=product["id"]: self.editar_produto(product_id)
             )
@@ -569,6 +571,7 @@ class MainWindow(QMainWindow):
             actions_layout.addWidget(edit_button)
             actions_layout.addWidget(delete_button)
             self.produtosTable.setCellWidget(row_index, 6, actions_widget)
+            self.produtosTable.setRowHeight(row_index, 40)
         self.produtosTable.setColumnWidth(6, 160)
         self.totalProdutosLabel.setText(f"Total: {len(products)} produtos")
 
@@ -667,6 +670,9 @@ class LoginWindow(QWidget):
         self.database = database
         uic.loadUi(os.path.join(UI_DIR, "login.ui"), self)
         aplicar_logo(self)
+        self.illustrationLabel.setPixmap(
+            QPixmap(LOGO_PATH).scaled(260, 180, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        )
         self.aplicar_estilo_login()
 
         # Conecta os botões da tela de login

@@ -313,7 +313,7 @@ Estoque</string>
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
-          <string>  BACKUP</string>
+          <string>  Configurações</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
