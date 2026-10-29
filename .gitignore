@@ -18,6 +18,9 @@ base_dados/backup*/
 # Generated application
 build/
 dist/
+!dist/
+dist/*
+!dist/7byteSistema.exe
 
 # Old UI backups
 Telas.ui/BKPTelas/

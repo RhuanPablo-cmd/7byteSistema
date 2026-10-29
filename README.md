@@ -44,6 +44,10 @@ dist\7byteSistema.exe
 
 O executável inclui as telas, o esquema do banco e o logo. Ao executar, os dados são gravados em `%LOCALAPPDATA%\7byteSistema\estoque.db`, fora do executável, para que continuem disponíveis após fechar o programa. No modo Python, o banco fica em `base_dados/estoque.db`. Em ambos os casos, ele é criado automaticamente usando `base_dados/estoque.sql`.
 
+## Baixar para Windows
+
+Baixe o executável pronto: [7byteSistema.exe](https://github.com/RhuanPablo-cmd/7byteSistema/raw/refs/heads/main/dist/7byteSistema.exe). Não é necessário instalar Python. No primeiro acesso, use o usuário `Admin` e a senha `1234` e altere a senha antes de usar dados reais.
+
 ## Primeiro acesso
 
 O esquema inclui uma conta administrativa inicial:
@@ -67,7 +71,7 @@ Os backups podem ser criados e restaurados pela página **Configurações**. Gua
 
 ## Publicar no GitHub
 
-O `.gitignore` exclui ambientes virtuais, arquivos temporários, banco de dados local, telas antigas de backup e artefatos de build. Para compartilhar o executável, gere-o com `build.ps1` e publique `dist/7byteSistema.exe` como um artefato de uma **Release** do GitHub; ele não é incluído no repositório de código.
+O `.gitignore` exclui ambientes virtuais, arquivos temporários, banco de dados local, telas antigas de backup e arquivos gerados de build. O executável Windows pronto fica em `dist/7byteSistema.exe` para download; gere uma nova versão com `build.ps1` quando o código ou o sistema mudar.
 
 ## Observações de segurança
 
